@@ -1,5 +1,5 @@
 from .linear import linear_forward, linearp
-from ..primitive_functions import UNBIND_QKV, SPLIT_HEADS, JOIN_HEADS, SOFTMAX, CAUSAL_MASK, MATRIX_TRANSPOSE
+from ..primitive_functions import SQRT, UNBIND_QKV, SPLIT_HEADS, JOIN_HEADS, SOFTMAX, CAUSAL_MASK, MATRIX_TRANSPOSE
 
 def attentionp(config):
     embedding_size = config["embedding_size"]
@@ -35,6 +35,7 @@ def attention_forward(config, pytree):
         causal_mask = CAUSAL_MASK(num_queries, num_keys)
 
         weights = queries @ MATRIX_TRANSPOSE(keys)
+        weights = weights / SQRT(num_keys)
         weights = weights - 1.0E9 * causal_mask
         weights = SOFTMAX(weights, dim=-1)
         answers = weights @ values

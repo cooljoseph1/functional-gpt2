@@ -25,10 +25,10 @@ def transformer_forward(config, pytree):
     feed_forward_f = feed_forward_forward(pytree["feed_forward"])
 
     def forward(embeddings):
-        embeddings = layer_norm1_f(embeddings)
-        embeddings = embeddings + attention_f(embeddings)
-        embeddings = layer_norm2_f(embeddings)
-        embeddings = embeddings + feed_forward_f(embeddings)
+        normed_embeddings = layer_norm1_f(embeddings)
+        embeddings = embeddings + attention_f(normed_embeddings)
+        normed_embeddings = layer_norm2_f(embeddings)
+        embeddings = embeddings + feed_forward_f(normed_embeddings)
         return embeddings
     
     return forward

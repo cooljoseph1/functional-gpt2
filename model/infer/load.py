@@ -1,7 +1,7 @@
 import os
 from safetensors import safe_open
 
-from .trees import dict_to_pytree
+from .trees import dict_to_pytree, print_tree
 
 tensors = {}
 weight_path = os.path.join(
@@ -54,4 +54,3 @@ from ..nn.embedding import text, position
 assert gpt2p(gpt2_config)(gpt2_pytree)
 assert text.embedp(text_embedder_config)(text_embedder_pytree)
 assert position.embedp(position_embedder_config)(position_embedder_pytree)
-

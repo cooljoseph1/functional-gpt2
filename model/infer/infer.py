@@ -39,4 +39,5 @@ def infer_bytes(text: str, num_tokens: int = -1):
     while count != num_tokens:
         next_token_id = predict_next_token(token_ids)
         yield gpt2_tokenizer.decode_single_token_bytes(next_token_id)
+        token_ids.append(next_token_id)
         count += 1

@@ -5,6 +5,7 @@
 
 import torch
 import torch.nn.functional as functional
+from math import sqrt
 
 LAYER_NORM = functional.layer_norm
 def AFFINE(x, W, b=None):
@@ -50,3 +51,5 @@ def CAUSAL_MASK(num_queries, num_keys):
 
 def GET_EMBEDDINGS(embeddings, inputs):
     return functional.embedding(inputs, embeddings)
+
+SQRT = sqrt
