@@ -1,4 +1,4 @@
-from ..primitive_functions import AFFINE
+from ..primitives import AFFINE
 
 def linearp(in_shape, out_shape, bias=True):
     if isinstance(in_shape, int):

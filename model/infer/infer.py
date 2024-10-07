@@ -7,6 +7,7 @@ from .load import (gpt2_config, gpt2_pytree,
 
 from ..nn.generative.gpt2 import gpt2_forward
 from ..nn.embedding import text, position
+from ..nn.primitives import ARRAY, SAMPLE_CATEGORICAL
 
 text_embed_f = text.embed_forward(text_embedder_pytree)
 text_unembed_f = text.unembed_forward(text_embedder_pytree)
@@ -23,11 +24,10 @@ def forward(tokens):
 
 
 def sample_token_id(logits):
-    dist = torch.distributions.Categorical(logits=logits)
-    return dist.sample().item()
+    return SAMPLE_CATEGORICAL(logits).item()
 
 def predict_next_token(tokens):
-    tokens = torch.tensor(tokens)
+    tokens = ARRAY(tokens)
     all_logits = forward(tokens)
     logits = all_logits[-1]
     return sample_token_id(logits)

@@ -1,4 +1,4 @@
-from ..primitive_functions import GELU
+from ..primitives import GELU
 from .linear import linear_forward, linearp
 
 def feed_forwardp(config):

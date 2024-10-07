@@ -1,6 +1,7 @@
 import os
 from safetensors import safe_open
 
+from ..env_vars import ML_FRAMEWORK
 from .trees import dict_to_pytree, print_tree
 
 tensors = {}
@@ -8,9 +9,16 @@ weight_path = os.path.join(
     os.path.dirname(__file__),
     "../weights/gpt2_renamed.safetensors"
 )
-with safe_open(weight_path, framework="pt", device="cpu") as f:
-   for key in f.keys():
-       tensors[key] = f.get_tensor(key)
+
+if ML_FRAMEWORK.lower() == "torch":
+    with safe_open(weight_path, framework="pt", device="cpu") as f:
+        for key in f.keys():
+            tensors[key] = f.get_tensor(key)
+else:
+    with safe_open(weight_path, framework="jax") as f:
+        for key in f.keys():
+            tensors[key] = f.get_tensor(key)
+
 
 
 

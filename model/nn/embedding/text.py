@@ -13,7 +13,7 @@ A config looks like:
 }
 """
 
-from ..primitive_functions import GET_EMBEDDINGS, MATRIX_TRANSPOSE, SOFTMAX
+from ..primitives import GET_EMBEDDINGS, MATRIX_TRANSPOSE
 
 def embedp(config):
     vocab_size = config["vocab_size"]
