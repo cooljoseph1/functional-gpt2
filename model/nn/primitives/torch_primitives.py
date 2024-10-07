@@ -8,7 +8,16 @@ def LAYER_NORM(x, weight, bias, eps=1e-5):
     return functional.layer_norm(x, weight.shape, weight, bias, eps=eps)
 
 def AFFINE(x, W, b=None):
-    """Returns x @ W + b, the affine projection. If b is None, the result is x @ W."""
+    """
+    Returns x @ W + b, the affine projection. If b is None, the result is x @ W.
+    
+    Note: It's slightly simpler in PyTorch to compute W @ x + b, but it's mathematically
+          more natural to compute x @ W + b. Thus, we go with the latter.
+
+    Note 2: This function only works if W is a degree 2 tensor. Sorry. If you want to use
+            a higher degree tensor you will need to reshape it before and after applying
+            AFFINE.
+    """
     y = x @ W
     if b is not None:
         y = y + b
@@ -18,31 +27,11 @@ GELU = functional.gelu
 
 SOFTMAX = functional.softmax
 
-def MATRIX_TRANSPOSE(x):
-    return x.swapaxes(-1, -2)
+def SWAPAXES(x, axis1, axis2):
+    return x.swapaxes(axis1, axis2)
 
-def UNBIND_QKV(qkv):
-    new_shape = qkv.shape[:-1] + (3, qkv.shape[-1] // 3)
-    reshaped = qkv.reshape(new_shape)
-    return reshaped.unbind(-2)
-
-def SPLIT_HEADS(num_heads):
-    def func(embeddings):
-        """
-        Splits a tensor along its last dimension into multi-headed queries, keys, or values.
-        """
-        new_shape = embeddings.shape[:-1] + (num_heads, embeddings.shape[-1] // num_heads)
-        reshaped = embeddings.reshape(new_shape)
-        return reshaped.swapaxes(-2, -3) # Transpose so the head dimension is before the position dimension
-    return func
-
-def JOIN_HEADS(x):
-    """
-    Joins the last two dimensions of the tensor
-    """
-    x = x.swapaxes(-2, -3) # Swap so the head dimnesion is next to the embedding dimension
-    new_shape = x.shape[:-2] + (x.shape[-2] * x.shape[-1],)
-    return x.reshape(new_shape)
+def UNBIND(x, dim=0):
+    return x.unbind(dim)
 
 def CAUSAL_MASK(num_queries, num_keys):
     return torch.tril(torch.ones((num_queries, num_keys))).bool()

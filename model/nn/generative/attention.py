@@ -1,47 +1,42 @@
-from .linear import linear_forward, linearp
-from ..primitives import SQRT, UNBIND_QKV, SPLIT_HEADS, JOIN_HEADS, SOFTMAX, CAUSAL_MASK, MATRIX_TRANSPOSE
+from .project import project_forward, projectp
+from ..primitives import SQRT, UNBIND, SOFTMAX, CAUSAL_MASK, SWAPAXES
 
 def attentionp(config):
     embedding_size = config["embedding_size"]
-    qkv_dim = 3 * embedding_size
+    num_heads = config["num_heads"]
 
     def predicate(pytree):
         return ("project_qkv" in pytree
-                and linearp(in_shape=embedding_size,
-                            out_shape=qkv_dim,
+                and projectp(in_shape=embedding_size,
+                            out_shape=(3, num_heads, embedding_size // num_heads),
                             bias=True)(pytree["project_qkv"])
                 and "project_out" in pytree
-                and linearp(in_shape=embedding_size,
+                and projectp(in_shape=(num_heads, embedding_size // num_heads),
                             out_shape=embedding_size,
                             bias=True)(pytree["project_out"]))
     
     return predicate
 
-def attention_forward(config, pytree):
-    num_heads = config["num_heads"]
-    head_splitter = SPLIT_HEADS(num_heads)
-    project_qkv_f = linear_forward(pytree["project_qkv"])
-    project_out_f = linear_forward(pytree["project_out"])
+def attention_forward(pytree):
+    project_qkv_f = project_forward(pytree["project_qkv"], out_dims=3)
+    project_out_f = project_forward(pytree["project_out"], in_dims=2)
 
     def forward(embeddings):
         qkv = project_qkv_f(embeddings)
-        queries, keys, values = UNBIND_QKV(qkv)
-        queries = head_splitter(queries)
-        keys = head_splitter(keys)
-        values = head_splitter(values)
+        qkv = SWAPAXES(qkv, -2, -4) # Swap position and head axes
+        queries, keys, values = UNBIND(qkv, -3)
 
-        num_queries = queries.shape[-2]
+        num_queries = queries.shape[-2] 
         num_keys = keys.shape[-2]
         causal_mask = CAUSAL_MASK(num_queries, num_keys)
 
-        weights = queries @ MATRIX_TRANSPOSE(keys)
+        weights = queries @ SWAPAXES(keys, -1, -2)
         weights = weights / SQRT(num_keys)
         weights = weights - 1.0E9 * (~causal_mask)
         weights = SOFTMAX(weights, dim=-1)
         answers = weights @ values
-        
-        embeddings = JOIN_HEADS(answers)
-        embeddings = project_out_f(embeddings)
+        answers = SWAPAXES(answers, -2, -3) # Swap position and head axes
+        embeddings = project_out_f(answers)
         return embeddings
     
     return forward

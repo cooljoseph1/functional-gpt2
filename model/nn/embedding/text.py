@@ -13,7 +13,7 @@ A config looks like:
 }
 """
 
-from ..primitives import GET_EMBEDDINGS, MATRIX_TRANSPOSE
+from ..primitives import GET_EMBEDDINGS, SWAPAXES
 
 def embedp(config):
     vocab_size = config["vocab_size"]
@@ -36,7 +36,7 @@ def embed_forward(pytree):
 
 
 def unembed_forward(pytree):
-    keys = MATRIX_TRANSPOSE(pytree["embeddings"])
+    keys = SWAPAXES(pytree["embeddings"], -1, -2)
 
     def forward(query_embeddings):
         return query_embeddings @ keys

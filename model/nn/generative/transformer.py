@@ -15,12 +15,12 @@ def transformerp(config):
     
     return predicate
 
-def transformer_forward(config, pytree):
+def transformer_forward(pytree):
     """
     Construct a forward function for a transformer pytree
     """
     layer_norm1_f = layer_norm_forward(pytree["layer_norm1"])
-    attention_f = attention_forward(config, pytree["attention"])
+    attention_f = attention_forward(pytree["attention"])
     layer_norm2_f = layer_norm_forward(pytree["layer_norm2"])
     feed_forward_f = feed_forward_forward(pytree["feed_forward"])
 

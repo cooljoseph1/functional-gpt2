@@ -1,5 +1,3 @@
-import torch
-
 from .tokenizer import gpt2_tokenizer
 from .load import (gpt2_config, gpt2_pytree,
                    text_embedder_config, text_embedder_pytree,
@@ -12,7 +10,7 @@ from ..nn.primitives import ARRAY, SAMPLE_CATEGORICAL
 text_embed_f = text.embed_forward(text_embedder_pytree)
 text_unembed_f = text.unembed_forward(text_embedder_pytree)
 position_embed_f = position.embed_forward(position_embedder_pytree)
-gpt2_f = gpt2_forward(gpt2_config, gpt2_pytree)
+gpt2_f = gpt2_forward(gpt2_pytree)
 
 def forward(tokens):
     text_embeddings = text_embed_f(tokens)

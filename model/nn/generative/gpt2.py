@@ -76,12 +76,12 @@ def gpt2p(config):
 
     return predicate
 
-def gpt2_forward(config, pytree):
+def gpt2_forward(pytree):
     """
     Construct the forward function for a gpt2 pytree
     """
     transformer_fs = [
-        transformer_forward(config, transformer_pytree)
+        transformer_forward(transformer_pytree)
         for transformer_pytree in pytree["transformers"]
     ]
     final_layer_norm_f = layer_norm_forward(pytree["final_layer_norm"])

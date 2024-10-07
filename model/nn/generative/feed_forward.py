@@ -1,5 +1,5 @@
 from ..primitives import GELU
-from .linear import linear_forward, linearp
+from .project import project_forward, projectp
 
 def feed_forwardp(config):
     embedding_size = config["embedding_size"]
@@ -7,19 +7,19 @@ def feed_forwardp(config):
 
     def predicate(pytree):
         return ("project_hidden" in pytree
-                and linearp(in_shape=(embedding_size,),
+                and projectp(in_shape=(embedding_size,),
                             out_shape=(hidden_size,),
                             bias=True)(pytree["project_hidden"])
                 and "project_out" in pytree
-                and linearp(in_shape=(hidden_size,),
+                and projectp(in_shape=(hidden_size,),
                             out_shape=(embedding_size,),
                             bias=True)(pytree["project_out"]))
     
     return predicate
 
 def feed_forward_forward(pytree):
-    project_hidden_f = linear_forward(pytree["project_hidden"])
-    project_out_f = linear_forward(pytree["project_out"])
+    project_hidden_f = project_forward(pytree["project_hidden"])
+    project_out_f = project_forward(pytree["project_out"])
 
     def forward(embeddings):
         embeddings = project_hidden_f(embeddings)
